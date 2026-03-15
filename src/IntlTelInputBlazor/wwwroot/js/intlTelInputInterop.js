@@ -2,38 +2,38 @@ const inputs = [];
 
 export function init(element, options, dotNetRef) {
     const itiOptions = {
-        allowDropdown: options.AllowDropdown,
-        allowedNumberTypes: options.AllowedNumberTypes,
-        allowNumberExtensions: options.AllowNumberExtensions,
-        allowPhonewords: options.AllowPhonewords,
-        autoPlaceholder: options.AutoPlaceholder,
-        containerClass: options.ContainerClass,
-        countryNameLocale: options.CountryNameLocale,
-        countrySearch: options.CountrySearch,
-        countryOrder: options.CountryOrder,
-        dropdownAlwaysOpen: options.DropdownAlwaysOpen,
-        excludeCountries: options.ExcludeCountries,
-        fixDropdownWidth: options.FixDropdownWidth,
-        formatAsYouType: options.FormatAsYouType,
-        formatOnDisplay: options.FormatOnDisplay,
-        initialCountry: options.InitialCountry,
-        i18n: options.I18n,
-        nationalMode: options.NationalMode,
-        onlyCountries: options.OnlyCountries,
-        placeholderNumberType: options.PlaceholderNumberType,
-        searchInputClass: options.SearchInputClass,
-        separateDialCode: options.SeparateDialCode,
-        showFlags: options.ShowFlags,
-        strictMode: options.StrictMode,
-        useFullscreenPopup: options.UseFullscreenPopup,
+        allowDropdown: options.allowDropdown,
+        allowedNumberTypes: options.allowedNumberTypes,
+        allowNumberExtensions: options.allowNumberExtensions,
+        allowPhonewords: options.allowPhonewords,
+        autoPlaceholder: options.autoPlaceholder,
+        containerClass: options.containerClass,
+        countryNameLocale: options.countryNameLocale,
+        countrySearch: options.countrySearch,
+        countryOrder: options.countryOrder,
+        dropdownAlwaysOpen: options.dropdownAlwaysOpen,
+        excludeCountries: options.excludeCountries,
+        fixDropdownWidth: options.fixDropdownWidth,
+        formatAsYouType: options.formatAsYouType,
+        formatOnDisplay: options.formatOnDisplay,
+        initialCountry: options.initialCountry,
+        i18n: options.i18n,
+        nationalMode: options.nationalMode,
+        onlyCountries: options.onlyCountries,
+        placeholderNumberType: options.placeholderNumberType,
+        searchInputClass: options.searchInputClass,
+        separateDialCode: options.separateDialCode,
+        showFlags: options.showFlags,
+        strictMode: options.strictMode,
+        useFullscreenPopup: options.useFullscreenPopup,
         loadUtils: () => import("./utils.js")
     };
 
     // Handle geoIpLookup if enabled
-    if (options.UseGeoIpLookup && options.GeoIpLookupUrl) {
+    if (options.useGeoIpLookup && options.geoIpLookupUrl) {
         itiOptions.initialCountry = "auto";
         itiOptions.geoIpLookup = (success, failure) => {
-            fetch(options.GeoIpLookupUrl)
+            fetch(options.geoIpLookupUrl)
                 .then(res => res.json())
                 .then(data => {
                     const countryCode = data.country_code || data.country || data.countryCode;
