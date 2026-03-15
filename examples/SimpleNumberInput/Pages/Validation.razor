@@ -13,7 +13,7 @@
     <h4>Basic Validation (Required + Valid Number)</h4>
     <p class="text-muted">Both fields use <code>[IntlTelephone]</code> to enforce valid phone numbers.</p>
 
-    <EditForm EditContext="_basicCtx" OnValidSubmit="OnBasicSubmit">
+    <EditForm Model="_basicModel" OnValidSubmit="OnBasicSubmit">
         <DataAnnotationsValidator/>
         <ValidationSummary/>
 
@@ -21,7 +21,7 @@
             <label class="form-label">Primary Phone (required):</label>
             <IntlTelInput @bind-Value="_basicModel.IntTelNumber"
                           InitialCountry="us"
-                          StrictMode="true"/>
+                          StrictMode="@true"/>
             <ValidationMessage For="() => _basicModel.IntTelNumber"/>
         </div>
 
@@ -29,7 +29,7 @@
             <label class="form-label">Secondary Phone (required):</label>
             <IntlTelInput @bind-Value="_basicModel.IntTelNumber2"
                           InitialCountry="gb"
-                          SeparateDialCode="true"/>
+                          SeparateDialCode="@true"/>
             <ValidationMessage For="() => _basicModel.IntTelNumber2"/>
         </div>
 
@@ -49,7 +49,7 @@
     <h4>Contact Form Example</h4>
     <p class="text-muted">A realistic form combining phone input with other fields.</p>
 
-    <EditForm EditContext="_contactCtx" OnValidSubmit="OnContactSubmit">
+    <EditForm Model="_contactModel" OnValidSubmit="OnContactSubmit">
         <DataAnnotationsValidator/>
 
         <div class="row">
@@ -75,9 +75,9 @@
             <label class="form-label">Phone Number:</label>
             <IntlTelInput @bind-Value="_contactModel.Phone"
                           InitialCountry="us"
-                          SeparateDialCode="true"
-                          StrictMode="true"
-                          CountryOrder='new[] {"us", "gb", "ca", "au"}'/>
+                          SeparateDialCode="@true"
+                          StrictMode="@true"
+                          CountryOrder="@(new[] {"us", "gb", "ca", "au"})"/>
             <ValidationMessage For="() => _contactModel.Phone"/>
         </div>
 
@@ -98,11 +98,11 @@
     <h4>Validation Error Codes Reference</h4>
     <p class="text-muted">Enter a number and see the detailed validation result.</p>
 
-    <EditForm EditContext="_errorCtx">
+    <EditForm Model="_errorModel">
         <IntlTelInput @ref="_errorInput"
-                      @bind-Value="_errorTel"
+                      @bind-Value="_errorModel.ErrorDemo"
                       InitialCountry="us"
-                      StrictMode="true"/>
+                      StrictMode="@true"/>
     </EditForm>
 
     <button class="btn btn-primary btn-sm mt-2" @onclick="DoDetailedValidation">Run Detailed Validation</button>
@@ -148,28 +148,18 @@
 @code {
     // Basic form
     NumberModel _basicModel = new();
-    EditContext _basicCtx;
     string _basicResult;
 
     // Contact form
     ContactModel _contactModel = new();
-    EditContext _contactCtx;
     string _contactResult;
 
     // Error codes
-    EditContext _errorCtx;
+    ValidationDemoModel _errorModel = new();
     IntlTelInput _errorInput;
-    IntlTel _errorTel;
 
     record DetailedValidation(bool Valid, bool PreciseValid, ValidationError Error);
     DetailedValidation _detailedValidation;
-
-    protected override void OnInitialized()
-    {
-        _basicCtx = new EditContext(_basicModel);
-        _contactCtx = new EditContext(_contactModel);
-        _errorCtx = new EditContext(new object());
-    }
 
     private void OnBasicSubmit()
     {

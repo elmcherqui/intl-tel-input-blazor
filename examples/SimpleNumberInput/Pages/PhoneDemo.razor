@@ -1,0 +1,101 @@
+@page "/phone-demo"
+@using IntlTelInputBlazor
+@using SimpleNumberInput.Models
+
+<h1>Phone Number Demo</h1>
+<p>Pre-populated number with auto-detected flag, data binding, and validation.</p>
+
+<hr/>
+
+<EditForm Model="_model" OnValidSubmit="OnSubmit">
+    <DataAnnotationsValidator/>
+
+    <div class="mb-3">
+        <label class="form-label"><strong>Phone Number:</strong></label>
+        <IntlTelInput @ref="_input"
+                      @bind-Value="_model.PhoneNumber"
+                      InitialCountry="ca"
+                      CountryOrder="@_countryOrder"
+                      SeparateDialCode="@true"
+                      StrictMode="@true"
+                      FormatAsYouType="@true"
+                      FormatOnDisplay="@true"
+                      OnCountryChange="OnCountryChanged"/>
+        <ValidationMessage For="() => _model.PhoneNumber"/>
+    </div>
+
+    <div class="mb-3">
+        <button class="btn btn-primary me-2" type="button" @onclick="Validate">Validate</button>
+        <button class="btn btn-success" type="submit">Submit</button>
+    </div>
+</EditForm>
+
+@if (_phoneValidationResult is not null)
+{
+    <div class="alert @(_phoneValidationResult.IsValid ? "alert-success" : "alert-danger") mt-3">
+        <strong>@(_phoneValidationResult.IsValid ? "Valid" : "Invalid")</strong>
+        <ul class="mb-0 mt-1">
+            <li>Number: <code>@_phoneValidationResult.E164</code></li>
+            <li>Valid: @_phoneValidationResult.IsValid</li>
+            <li>Precise Valid: @_phoneValidationResult.IsPreciseValid</li>
+            <li>Number Type: @_phoneValidationResult.NumberType</li>
+            @if (!_phoneValidationResult.IsValid)
+            {
+                <li>Error: <code>@_phoneValidationResult.Error</code></li>
+            }
+            <li>Country: @_phoneValidationResult.Country?.Name (@_phoneValidationResult.Country?.Iso2) +@_phoneValidationResult.Country?.DialCode</li>
+        </ul>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(_submitResult))
+{
+    <div class="alert alert-info mt-3">@_submitResult</div>
+}
+
+<hr/>
+
+<h4>Bound Model State</h4>
+<table class="table table-sm" style="max-width: 500px;">
+    <tbody>
+        <tr><td>Number</td><td><code>@(_model.PhoneNumber?.Number ?? "(null)")</code></td></tr>
+        <tr><td>IsValid</td><td>@(_model.PhoneNumber?.IsValid)</td></tr>
+        <tr><td>ValidationError</td><td>@(_model.PhoneNumber?.ValidationError)</td></tr>
+        <tr><td>NumberType</td><td>@(_model.PhoneNumber?.NumberType)</td></tr>
+        <tr><td>Country</td><td>@(_model.PhoneNumber?.CountryData?.Name) (@(_model.PhoneNumber?.CountryData?.Iso2))</td></tr>
+    </tbody>
+</table>
+
+@code {
+    PhoneModel _model = new();
+    IntlTelInput _input;
+
+    string[] _countryOrder = { "ca", "us", "gb", "de", "fr", "it", "es", "nl", "be", "at", "pt", "ie", "fi", "se", "dk", "pl", "cz", "gr", "hu", "ro", "bg", "hr", "sk", "si", "lt", "lv", "ee" };
+
+    record PhoneValidationResult(bool IsValid, bool IsPreciseValid, string E164, NumberType NumberType, ValidationError Error, IntlTelCountryData Country);
+    PhoneValidationResult _phoneValidationResult;
+    string _submitResult;
+
+    private async Task Validate()
+    {
+        if (_input is null) return;
+        _phoneValidationResult = new(
+            await _input.IsValidNumber(),
+            await _input.IsValidNumberPrecise(),
+            await _input.GetNumber(NumberFormat.E164),
+            await _input.GetNumberType(),
+            await _input.GetValidationError(),
+            await _input.GetSelectedCountryData()
+        );
+    }
+
+    private void OnSubmit()
+    {
+        _submitResult = $"Submitted: {_model.PhoneNumber?.Number}";
+    }
+
+    private void OnCountryChanged(IntlTelCountryData country)
+    {
+        StateHasChanged();
+    }
+}

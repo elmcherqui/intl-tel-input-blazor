@@ -1,5 +1,6 @@
 @page "/"
 @using IntlTelInputBlazor
+@using SimpleNumberInput.Models
 
 <h1>IntlTelInput Blazor - Demo Overview</h1>
 <p>A Blazor wrapper for <strong>intl-tel-input v26.8</strong> providing international telephone input with country flags, validation, and formatting.</p>
@@ -10,14 +11,14 @@
 <p>The simplest usage &mdash; just bind a value:</p>
 
 <div class="demo-section">
-    <EditForm EditContext="_editContext">
+    <EditForm Model="_model">
         <label>Phone Number:</label>
-        <IntlTelInput @ref="_basicInput" @bind-Value="_tel" InitialCountry="us"/>
+        <IntlTelInput @ref="_basicInput" @bind-Value="_model.Phone" InitialCountry="us"/>
     </EditForm>
 
     <div class="mt-2">
         <button class="btn btn-sm btn-outline-primary" @onclick="ShowBasicValue">Show Value</button>
-        @if (_tel is not null && !string.IsNullOrEmpty(_basicResult))
+        @if (!string.IsNullOrEmpty(_basicResult))
         {
             <span class="ms-2 text-muted">@_basicResult</span>
         }
@@ -76,15 +77,9 @@
 </div>
 
 @code {
-    IntlTel _tel;
+    DemoModel _model = new();
     IntlTelInput _basicInput;
-    EditContext _editContext;
     string _basicResult;
-
-    protected override void OnInitialized()
-    {
-        _editContext = new EditContext(new object());
-    }
 
     private async Task ShowBasicValue()
     {

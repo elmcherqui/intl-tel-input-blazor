@@ -1,8 +1,11 @@
 @page "/configurations"
 @using IntlTelInputBlazor
+@using SimpleNumberInput.Models
 
 <h1>Configuration Options</h1>
 <p>Each input below demonstrates a different combination of initialization parameters.</p>
+
+<EditForm Model="_model">
 
 <hr/>
 
@@ -10,13 +13,11 @@
 <div class="demo-section">
     <h4>Separate Dial Code</h4>
     <p class="text-muted">Shows the dial code next to the flag, outside the input.</p>
-    <code>SeparateDialCode="true" InitialCountry="gb"</code>
+    <code>SeparateDialCode="@true" InitialCountry="gb"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val1"
-                          InitialCountry="gb"
-                          SeparateDialCode="true"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.SeparateDialCode"
+                      InitialCountry="gb"
+                      SeparateDialCode="@true"/>
     </div>
 </div>
 
@@ -26,14 +27,12 @@
 <div class="demo-section">
     <h4>International Mode (NationalMode=false)</h4>
     <p class="text-muted">Numbers are displayed and formatted in international format with the dial code.</p>
-    <code>NationalMode="false" InitialCountry="de" FormatOnDisplay="true"</code>
+    <code>NationalMode="@false" InitialCountry="de" FormatOnDisplay="@true"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val2"
-                          InitialCountry="de"
-                          NationalMode="false"
-                          FormatOnDisplay="true"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.InternationalMode"
+                      InitialCountry="de"
+                      NationalMode="@false"
+                      FormatOnDisplay="@true"/>
     </div>
 </div>
 
@@ -43,13 +42,11 @@
 <div class="demo-section">
     <h4>Strict Mode</h4>
     <p class="text-muted">Only allows a plus followed by numeric digits, capped at max valid length. Try typing letters.</p>
-    <code>StrictMode="true" InitialCountry="us"</code>
+    <code>StrictMode="@true" InitialCountry="us"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val3"
-                          InitialCountry="us"
-                          StrictMode="true"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.StrictMode"
+                      InitialCountry="us"
+                      StrictMode="@true"/>
     </div>
 </div>
 
@@ -59,13 +56,11 @@
 <div class="demo-section">
     <h4>Country Order (Priority Countries)</h4>
     <p class="text-muted">Japan, South Korea, and Australia appear at the top of the dropdown.</p>
-    <code>CountryOrder='new[] {"jp", "kr", "au"}' InitialCountry="jp"</code>
+    <code>CountryOrder='new[] {"jp", "kr", "au"}'</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val4"
-                          InitialCountry="jp"
-                          CountryOrder='new[] {"jp", "kr", "au"}'/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.CountryOrder"
+                      InitialCountry="jp"
+                      CountryOrder="@(new[] {"jp", "kr", "au"})"/>
     </div>
 </div>
 
@@ -77,11 +72,9 @@
     <p class="text-muted">Dropdown only contains US, Canada, Mexico, and UK.</p>
     <code>OnlyCountries='new[] {"us", "ca", "mx", "gb"}'</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val5"
-                          InitialCountry="us"
-                          OnlyCountries='new[] {"us", "ca", "mx", "gb"}'/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.OnlyCountries"
+                      InitialCountry="us"
+                      OnlyCountries="@(new[] {"us", "ca", "mx", "gb"})"/>
     </div>
 </div>
 
@@ -93,11 +86,9 @@
     <p class="text-muted">All countries except Russia and North Korea.</p>
     <code>ExcludeCountries='new[] {"ru", "kp"}'</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val6"
-                          InitialCountry="us"
-                          ExcludeCountries='new[] {"ru", "kp"}'/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.ExcludeCountries"
+                      InitialCountry="us"
+                      ExcludeCountries="@(new[] {"ru", "kp"})"/>
     </div>
 </div>
 
@@ -107,13 +98,11 @@
 <div class="demo-section">
     <h4>Dropdown Disabled</h4>
     <p class="text-muted">Country is fixed to France &mdash; no dropdown arrow, not clickable.</p>
-    <code>AllowDropdown="false" InitialCountry="fr"</code>
+    <code>AllowDropdown="@false" InitialCountry="fr"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val7"
-                          InitialCountry="fr"
-                          AllowDropdown="false"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.NoDropdown"
+                      InitialCountry="fr"
+                      AllowDropdown="@false"/>
     </div>
 </div>
 
@@ -123,14 +112,12 @@
 <div class="demo-section">
     <h4>No Flags</h4>
     <p class="text-muted">Hides country flags entirely. Shows a globe icon instead.</p>
-    <code>ShowFlags="false" SeparateDialCode="true"</code>
+    <code>ShowFlags="@false" SeparateDialCode="@true"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val8"
-                          InitialCountry="us"
-                          ShowFlags="false"
-                          SeparateDialCode="true"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.NoFlags"
+                      InitialCountry="us"
+                      ShowFlags="@false"
+                      SeparateDialCode="@true"/>
     </div>
 </div>
 
@@ -140,13 +127,11 @@
 <div class="demo-section">
     <h4>No Country Search</h4>
     <p class="text-muted">Disables the search input at the top of the country dropdown.</p>
-    <code>CountrySearch="false"</code>
+    <code>CountrySearch="@false"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val9"
-                          InitialCountry="us"
-                          CountrySearch="false"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.NoSearch"
+                      InitialCountry="us"
+                      CountrySearch="@false"/>
     </div>
 </div>
 
@@ -158,12 +143,10 @@
     <p class="text-muted">Placeholder shows a fixed-line number example instead of mobile.</p>
     <code>PlaceholderNumberType="FIXED_LINE" AutoPlaceholder="aggressive"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val10"
-                          InitialCountry="gb"
-                          PlaceholderNumberType="FIXED_LINE"
-                          AutoPlaceholder="aggressive"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.FixedLinePlaceholder"
+                      InitialCountry="gb"
+                      PlaceholderNumberType="FIXED_LINE"
+                      AutoPlaceholder="aggressive"/>
     </div>
 </div>
 
@@ -173,14 +156,12 @@
 <div class="demo-section">
     <h4>Placeholder Off</h4>
     <p class="text-muted">No automatic placeholder is set.</p>
-    <code>AutoPlaceholder="off"</code>
+    <code>AutoPlaceholder="off" placeholder="Enter your number"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val11"
-                          InitialCountry="us"
-                          AutoPlaceholder="off"
-                          placeholder="Enter your number"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.PlaceholderOff"
+                      InitialCountry="us"
+                      AutoPlaceholder="off"
+                      placeholder="Enter your number"/>
     </div>
 </div>
 
@@ -192,20 +173,16 @@
     <p class="text-muted">No automatic formatting while typing. Compare with the next input (formatting enabled).</p>
     <div class="row">
         <div class="col-md-6">
-            <code>FormatAsYouType="false"</code>
-            <EditForm EditContext="_ctx">
-                <IntlTelInput @bind-Value="_val12a"
-                              InitialCountry="us"
-                              FormatAsYouType="false"/>
-            </EditForm>
+            <code>FormatAsYouType="@false"</code>
+            <IntlTelInput @bind-Value="_model.FormatOff"
+                          InitialCountry="us"
+                          FormatAsYouType="@false"/>
         </div>
         <div class="col-md-6">
-            <code>FormatAsYouType="true" (default)</code>
-            <EditForm EditContext="_ctx">
-                <IntlTelInput @bind-Value="_val12b"
-                              InitialCountry="us"
-                              FormatAsYouType="true"/>
-            </EditForm>
+            <code>FormatAsYouType="@true" (default)</code>
+            <IntlTelInput @bind-Value="_model.FormatOn"
+                          InitialCountry="us"
+                          FormatAsYouType="@true"/>
         </div>
     </div>
 </div>
@@ -218,20 +195,16 @@
     <p class="text-muted">Left: dropdown matches input width. Right: dropdown auto-sizes to content.</p>
     <div class="row">
         <div class="col-md-6">
-            <code>FixDropdownWidth="true" (default)</code>
-            <EditForm EditContext="_ctx">
-                <IntlTelInput @bind-Value="_val13a"
-                              InitialCountry="us"
-                              FixDropdownWidth="true"/>
-            </EditForm>
+            <code>FixDropdownWidth="@true" (default)</code>
+            <IntlTelInput @bind-Value="_model.DropdownFixed"
+                          InitialCountry="us"
+                          FixDropdownWidth="@true"/>
         </div>
         <div class="col-md-6">
-            <code>FixDropdownWidth="false"</code>
-            <EditForm EditContext="_ctx">
-                <IntlTelInput @bind-Value="_val13b"
-                              InitialCountry="us"
-                              FixDropdownWidth="false"/>
-            </EditForm>
+            <code>FixDropdownWidth="@false"</code>
+            <IntlTelInput @bind-Value="_model.DropdownAuto"
+                          InitialCountry="us"
+                          FixDropdownWidth="@false"/>
         </div>
     </div>
 </div>
@@ -244,11 +217,9 @@
     <p class="text-muted">Adds a custom CSS class to the outer container for styling.</p>
     <code>ContainerClass="custom-phone-container"</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @bind-Value="_val14"
-                          InitialCountry="us"
-                          ContainerClass="custom-phone-container"/>
-        </EditForm>
+        <IntlTelInput @bind-Value="_model.CustomContainer"
+                      InitialCountry="us"
+                      ContainerClass="custom-phone-container"/>
     </div>
 </div>
 
@@ -260,13 +231,11 @@
     <p class="text-muted">Only mobile numbers are considered valid.</p>
     <code>AllowedNumberTypes='new[] {"MOBILE"}'</code>
     <div class="mt-2">
-        <EditForm EditContext="_ctx">
-            <IntlTelInput @ref="_mobileOnly"
-                          @bind-Value="_val15"
-                          InitialCountry="us"
-                          AllowedNumberTypes='new[] {"MOBILE"}'/>
-        </EditForm>
-        <button class="btn btn-sm btn-outline-primary mt-1" @onclick="CheckMobileOnly">Check Validity</button>
+        <IntlTelInput @ref="_mobileOnly"
+                      @bind-Value="_model.MobileOnly"
+                      InitialCountry="us"
+                      AllowedNumberTypes="@(new[] {"MOBILE"})"/>
+        <button class="btn btn-sm btn-outline-primary mt-1" type="button" @onclick="CheckMobileOnly">Check Validity</button>
         @if (!string.IsNullOrEmpty(_mobileOnlyResult))
         {
             <span class="ms-2 text-muted">@_mobileOnlyResult</span>
@@ -274,19 +243,13 @@
     </div>
 </div>
 
-@code {
-    EditContext _ctx;
+</EditForm>
 
-    IntlTel _val1, _val2, _val3, _val4, _val5, _val6, _val7, _val8, _val9;
-    IntlTel _val10, _val11, _val12a, _val12b, _val13a, _val13b, _val14, _val15;
+@code {
+    ConfigurationsModel _model = new();
 
     IntlTelInput _mobileOnly;
     string _mobileOnlyResult;
-
-    protected override void OnInitialized()
-    {
-        _ctx = new EditContext(new object());
-    }
 
     private async Task CheckMobileOnly()
     {

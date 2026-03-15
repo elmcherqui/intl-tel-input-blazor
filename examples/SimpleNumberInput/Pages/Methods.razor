@@ -1,5 +1,6 @@
 @page "/methods"
 @using IntlTelInputBlazor
+@using SimpleNumberInput.Models
 
 <h1>Methods API</h1>
 <p>All public methods available on the <code>IntlTelInput</code> component via <code>@@ref</code>.</p>
@@ -8,12 +9,12 @@
 
 <div class="demo-section">
     <h4>Test Input</h4>
-    <EditForm EditContext="_ctx">
+    <EditForm Model="_model">
         <IntlTelInput @ref="_input"
-                      @bind-Value="_tel"
+                      @bind-Value="_model.Phone"
                       InitialCountry="us"
-                      SeparateDialCode="true"
-                      AllowNumberExtensions="true"/>
+                      SeparateDialCode="@true"
+                      AllowNumberExtensions="@true"/>
     </EditForm>
 </div>
 
@@ -165,9 +166,8 @@
 </div>
 
 @code {
-    EditContext _ctx;
+    MethodsDemoModel _model = new();
     IntlTelInput _input;
-    IntlTel _tel;
 
     // GetNumber results
     record NumberFormatsResult(string E164, string International, string National, string Rfc3966);
@@ -191,11 +191,6 @@
 
     // Disabled
     bool _isDisabled;
-
-    protected override void OnInitialized()
-    {
-        _ctx = new EditContext(new object());
-    }
 
     private async Task DoGetNumber()
     {

@@ -1,5 +1,6 @@
 @page "/events"
 @using IntlTelInputBlazor
+@using SimpleNumberInput.Models
 
 <h1>Events</h1>
 <p>All event callbacks fired by the component, with a live event log.</p>
@@ -8,10 +9,10 @@
 
 <div class="demo-section">
     <h4>Input with All Events</h4>
-    <EditForm EditContext="_ctx">
-        <IntlTelInput @bind-Value="_tel"
+    <EditForm Model="_model">
+        <IntlTelInput @bind-Value="_model.Phone"
                       InitialCountry="us"
-                      SeparateDialCode="true"
+                      SeparateDialCode="@true"
                       OnCountryChange="HandleCountryChange"
                       OnDropdownOpen="HandleDropdownOpen"
                       OnDropdownClose="HandleDropdownClose"/>
@@ -99,8 +100,7 @@
 }</code></pre>
 
 @code {
-    EditContext _ctx;
-    IntlTel _tel;
+    EventsDemoModel _model = new();
 
     record EventLogEntry(DateTime Timestamp, string Type, string Details);
     List<EventLogEntry> _eventLog = new();
@@ -109,11 +109,6 @@
     int _dropdownOpenCount;
     int _dropdownCloseCount;
     IntlTelCountryData _lastCountry;
-
-    protected override void OnInitialized()
-    {
-        _ctx = new EditContext(new object());
-    }
 
     private void HandleCountryChange(IntlTelCountryData country)
     {
