@@ -1,87 +1,238 @@
 @inherits InputBase<IntlTel>
+@implements IAsyncDisposable
 @inject IntlTelInputJsInterop _intlTelInputJsInterop
 
-<input @onchange="OnInput" type="tel" @ref="_telInput"/>
+<input @onchange="OnInput" type="tel" class="@CssClass" @ref="_telInput" @attributes="AdditionalAttributes"/>
 
 @code {
 
+    // ===== Initialization Options (all intl-tel-input v26 options) =====
+
+    /// <summary>
+    /// Whether or not to allow the dropdown. If disabled, no dropdown arrow and the selected country is not clickable.
+    /// </summary>
     [Parameter]
     public bool AllowDropdown { get; set; } = true;
 
+    /// <summary>
+    /// The number types to enforce during validation (e.g. "MOBILE", "FIXED_LINE").
+    /// </summary>
+    [Parameter]
+    public IEnumerable<string> AllowedNumberTypes { get; set; } = new[] { "MOBILE", "FIXED_LINE" };
+
+    /// <summary>
+    /// Whether or not to allow extensions after the main number.
+    /// </summary>
+    [Parameter]
+    public bool AllowNumberExtensions { get; set; }
+
+    /// <summary>
+    /// Allow alphanumeric "phonewords" (e.g. +1 800 FLOWERS) as valid numbers.
+    /// </summary>
+    [Parameter]
+    public bool AllowPhonewords { get; set; }
+
+    /// <summary>
+    /// Set the input's placeholder to an example number for the selected country.
+    /// Values: "polite" (default), "aggressive", "off"
+    /// </summary>
     [Parameter]
     public string AutoPlaceholder { get; set; } = "polite";
 
+    /// <summary>
+    /// Additional CSS class to add to the injected container element.
+    /// </summary>
     [Parameter]
     public string ContainerClass { get; set; }
 
+    /// <summary>
+    /// Locale for localising country names via Intl.DisplayNames (e.g. "en", "de", "fr").
+    /// </summary>
+    [Parameter]
+    public string CountryNameLocale { get; set; } = "en";
+
+    /// <summary>
+    /// Enable a country search input at the top of the dropdown.
+    /// </summary>
     [Parameter]
     public bool CountrySearch { get; set; } = true;
 
+    /// <summary>
+    /// Priority countries to display at the top of the dropdown (ISO2 codes).
+    /// </summary>
     [Parameter]
-    public IEnumerable<string> CountryOrder { get; set; } = new[] {"us", "gb"};
+    public IEnumerable<string> CountryOrder { get; set; }
 
+    /// <summary>
+    /// Always show the dropdown (useful for inline pickers).
+    /// </summary>
     [Parameter]
-    public IEnumerable<string> ExcludeCountries { get; set; } = Enumerable.Empty<string>();
+    public bool DropdownAlwaysOpen { get; set; }
 
+    /// <summary>
+    /// Countries to exclude from the dropdown (ISO2 codes).
+    /// </summary>
     [Parameter]
-    public bool FormatOnDisplay { get; set; } = true;
+    public IEnumerable<string> ExcludeCountries { get; set; }
 
+    /// <summary>
+    /// Fix the dropdown width to the input width.
+    /// </summary>
+    [Parameter]
+    public bool FixDropdownWidth { get; set; } = true;
+
+    /// <summary>
+    /// Format the number as the user types.
+    /// </summary>
     [Parameter]
     public bool FormatAsYouType { get; set; } = true;
 
+    /// <summary>
+    /// Format the input value during initialisation and on setNumber.
+    /// </summary>
+    [Parameter]
+    public bool FormatOnDisplay { get; set; } = true;
+
+    /// <summary>
+    /// Internationalisation strings (e.g. search placeholder, country names).
+    /// </summary>
+    [Parameter]
+    public Dictionary<string, string> I18n { get; set; }
+
+    /// <summary>
+    /// The initial country to select (ISO2 code). Set to "auto" with GeoIpLookupUrl for auto-detection.
+    /// </summary>
     [Parameter]
     public string InitialCountry { get; set; }
 
-    [Parameter]
-    public Dictionary<string, string> LocalizedCountries { get; set; }
-
+    /// <summary>
+    /// National vs international formatting for numbers (placeholders and displaying existing numbers).
+    /// </summary>
     [Parameter]
     public bool NationalMode { get; set; } = true;
 
+    /// <summary>
+    /// Only display these countries in the dropdown (ISO2 codes).
+    /// </summary>
     [Parameter]
-    public IEnumerable<string> OnlyCountries { get; set; } = Enumerable.Empty<string>();
+    public IEnumerable<string> OnlyCountries { get; set; }
 
+    /// <summary>
+    /// The number type to use for the placeholder (e.g. "MOBILE", "FIXED_LINE").
+    /// </summary>
     [Parameter]
     public string PlaceholderNumberType { get; set; } = "MOBILE";
 
+    /// <summary>
+    /// Additional CSS class for the search input element in the dropdown.
+    /// </summary>
+    [Parameter]
+    public string SearchInputClass { get; set; }
+
+    /// <summary>
+    /// Display the international dial code next to the selected flag.
+    /// </summary>
     [Parameter]
     public bool SeparateDialCode { get; set; }
 
+    /// <summary>
+    /// Show country flags in the dropdown and for the selected country.
+    /// </summary>
     [Parameter]
     public bool ShowFlags { get; set; } = true;
 
+    /// <summary>
+    /// Only allow a plus followed by numeric digits, and cap at max valid length.
+    /// </summary>
     [Parameter]
-    public bool StrictMode { get; set; } = false;
+    public bool StrictMode { get; set; }
 
-    ElementReference _telInput;
+    /// <summary>
+    /// Use full screen popup instead of dropdown for the country list (mobile-friendly).
+    /// Null = auto-detect based on viewport.
+    /// </summary>
+    [Parameter]
+    public bool? UseFullscreenPopup { get; set; }
 
-    private int _inputIndex;
+    /// <summary>
+    /// Enable GeoIP-based country auto-detection. Set this to true and provide GeoIpLookupUrl.
+    /// </summary>
+    [Parameter]
+    public bool UseGeoIpLookup { get; set; }
+
+    /// <summary>
+    /// URL for GeoIP lookup that returns JSON with country_code, country, or countryCode field.
+    /// Example: "https://ipapi.co/json"
+    /// </summary>
+    [Parameter]
+    public string GeoIpLookupUrl { get; set; }
+
+    // ===== Events =====
+
+    /// <summary>
+    /// Fired when the selected country changes (either by user or programmatically).
+    /// </summary>
+    [Parameter]
+    public EventCallback<IntlTelCountryData> OnCountryChange { get; set; }
+
+    /// <summary>
+    /// Fired when the country dropdown is opened.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnDropdownOpen { get; set; }
+
+    /// <summary>
+    /// Fired when the country dropdown is closed.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnDropdownClose { get; set; }
+
+    // ===== Private fields =====
+
+    private ElementReference _telInput;
+    private int _inputIndex = -1;
+    private DotNetObjectReference<IntlTelInput> _dotNetRef;
+    private bool _disposed;
+
+    // ===== Lifecycle =====
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _dotNetRef = DotNetObjectReference.Create(this);
+
             _inputIndex = await _intlTelInputJsInterop.Init(_telInput, new
             {
                 AllowDropdown,
+                AllowedNumberTypes,
+                AllowNumberExtensions,
+                AllowPhonewords,
                 AutoPlaceholder,
                 ContainerClass,
+                CountryNameLocale,
                 CountrySearch,
                 CountryOrder,
+                DropdownAlwaysOpen,
                 ExcludeCountries,
-                FormatOnDisplay,
+                FixDropdownWidth,
                 FormatAsYouType,
+                FormatOnDisplay,
+                I18n,
                 InitialCountry,
-                LocalizedCountries,
                 NationalMode,
                 OnlyCountries,
                 PlaceholderNumberType,
+                SearchInputClass,
                 SeparateDialCode,
                 ShowFlags,
-                StrictMode
-            });
+                StrictMode,
+                UseFullscreenPopup,
+                UseGeoIpLookup,
+                GeoIpLookupUrl
+            }, _dotNetRef);
 
-            if (CurrentValue is not null)
+            if (CurrentValue is not null && !string.IsNullOrEmpty(CurrentValue.Number))
             {
                 await _intlTelInputJsInterop.SetNumber(_inputIndex, CurrentValue.Number);
             }
@@ -93,12 +244,177 @@
         throw new NotImplementedException();
     }
 
-    private async void OnInput(ChangeEventArgs e)
+    private async Task OnInput(ChangeEventArgs e)
     {
         CurrentValue = await _intlTelInputJsInterop.GetData(_inputIndex);
-        if (CurrentValue is not null)
+        if (CurrentValue is not null && !string.IsNullOrEmpty(CurrentValue.Number))
         {
             await _intlTelInputJsInterop.SetNumber(_inputIndex, CurrentValue.Number);
         }
+    }
+
+    // ===== JS → .NET event callbacks =====
+
+    [JSInvokable]
+    public async Task OnCountryChangeCallback(IntlTelCountryData countryData)
+    {
+        if (OnCountryChange.HasDelegate)
+        {
+            await OnCountryChange.InvokeAsync(countryData);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnDropdownOpenCallback()
+    {
+        if (OnDropdownOpen.HasDelegate)
+        {
+            await OnDropdownOpen.InvokeAsync();
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnDropdownCloseCallback()
+    {
+        if (OnDropdownClose.HasDelegate)
+        {
+            await OnDropdownClose.InvokeAsync();
+        }
+    }
+
+    // ===== Public API methods =====
+
+    /// <summary>
+    /// Get the current number in the specified format.
+    /// </summary>
+    public async ValueTask<string> GetNumber(NumberFormat format = NumberFormat.E164)
+    {
+        if (_inputIndex < 0) return string.Empty;
+        return await _intlTelInputJsInterop.GetNumber(_inputIndex, (int)format);
+    }
+
+    /// <summary>
+    /// Get the country data for the currently selected country.
+    /// </summary>
+    public async ValueTask<IntlTelCountryData> GetSelectedCountryData()
+    {
+        if (_inputIndex < 0) return null;
+        return await _intlTelInputJsInterop.GetSelectedCountryData(_inputIndex);
+    }
+
+    /// <summary>
+    /// Get the validation error code for the current number.
+    /// </summary>
+    public async ValueTask<ValidationError> GetValidationError()
+    {
+        if (_inputIndex < 0) return ValidationError.InvalidLength;
+        var code = await _intlTelInputJsInterop.GetValidationError(_inputIndex);
+        return Enum.IsDefined(typeof(ValidationError), code) ? (ValidationError)code : ValidationError.InvalidLength;
+    }
+
+    /// <summary>
+    /// Get the extension from the current number.
+    /// </summary>
+    public async ValueTask<string> GetExtension()
+    {
+        if (_inputIndex < 0) return string.Empty;
+        return await _intlTelInputJsInterop.GetExtension(_inputIndex);
+    }
+
+    /// <summary>
+    /// Get the type of the entered number.
+    /// </summary>
+    public async ValueTask<NumberType> GetNumberType()
+    {
+        if (_inputIndex < 0) return NumberType.Unknown;
+        var type = await _intlTelInputJsInterop.GetNumberType(_inputIndex);
+        return Enum.IsDefined(typeof(NumberType), type) ? (NumberType)type : NumberType.Unknown;
+    }
+
+    /// <summary>
+    /// Validate the current number (returns true if valid).
+    /// Uses number length validation.
+    /// </summary>
+    public async ValueTask<bool> IsValidNumber()
+    {
+        if (_inputIndex < 0) return false;
+        return await _intlTelInputJsInterop.IsValidNumber(_inputIndex);
+    }
+
+    /// <summary>
+    /// Validate the current number with precise validation (stricter than IsValidNumber).
+    /// </summary>
+    public async ValueTask<bool> IsValidNumberPrecise()
+    {
+        if (_inputIndex < 0) return false;
+        return await _intlTelInputJsInterop.IsValidNumberPrecise(_inputIndex);
+    }
+
+    /// <summary>
+    /// Change the currently selected country.
+    /// </summary>
+    public async ValueTask SetCountry(string iso2)
+    {
+        if (_inputIndex < 0) return;
+        await _intlTelInputJsInterop.SetCountry(_inputIndex, iso2);
+    }
+
+    /// <summary>
+    /// Set the input value and update the country accordingly.
+    /// </summary>
+    public async ValueTask SetNumber(string number)
+    {
+        if (_inputIndex < 0) return;
+        await _intlTelInputJsInterop.SetNumber(_inputIndex, number);
+    }
+
+    /// <summary>
+    /// Enable or disable the input and country selector.
+    /// </summary>
+    public async ValueTask SetDisabled(bool disabled)
+    {
+        if (_inputIndex < 0) return;
+        await _intlTelInputJsInterop.SetDisabled(_inputIndex, disabled);
+    }
+
+    /// <summary>
+    /// Change the placeholder number type (e.g. "MOBILE", "FIXED_LINE").
+    /// </summary>
+    public async ValueTask SetPlaceholderNumberType(string type)
+    {
+        if (_inputIndex < 0) return;
+        await _intlTelInputJsInterop.SetPlaceholderNumberType(_inputIndex, type);
+    }
+
+    /// <summary>
+    /// Remove the plugin and clean up all event listeners and markup.
+    /// </summary>
+    public async ValueTask Destroy()
+    {
+        if (_inputIndex < 0) return;
+        await _intlTelInputJsInterop.Destroy(_inputIndex);
+        _inputIndex = -1;
+    }
+
+    // ===== Disposal =====
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        _disposed = true;
+
+        if (_inputIndex >= 0)
+        {
+            try
+            {
+                await _intlTelInputJsInterop.Destroy(_inputIndex);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit disconnected, cleanup not possible
+            }
+        }
+
+        _dotNetRef?.Dispose();
     }
 }

@@ -1,0 +1,271 @@
+@page "/methods"
+@using IntlTelInputBlazor
+
+<h1>Methods API</h1>
+<p>All public methods available on the <code>IntlTelInput</code> component via <code>@@ref</code>.</p>
+
+<hr/>
+
+<div class="demo-section">
+    <h4>Test Input</h4>
+    <EditForm EditContext="_ctx">
+        <IntlTelInput @ref="_input"
+                      @bind-Value="_tel"
+                      InitialCountry="us"
+                      SeparateDialCode="true"
+                      AllowNumberExtensions="true"/>
+    </EditForm>
+</div>
+
+<hr/>
+
+@* --- GetNumber (all formats) --- *@
+<div class="demo-section">
+    <h4>GetNumber(format)</h4>
+    <p class="text-muted">Retrieve the number in all four formats.</p>
+    <button class="btn btn-primary btn-sm" @onclick="DoGetNumber">Get Number (All Formats)</button>
+    @if (_numberFormats is not null)
+    {
+        <table class="table table-sm mt-2">
+            <thead><tr><th>Format</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>E.164</td><td><code>@_numberFormats.E164</code></td></tr>
+                <tr><td>International</td><td><code>@_numberFormats.International</code></td></tr>
+                <tr><td>National</td><td><code>@_numberFormats.National</code></td></tr>
+                <tr><td>RFC 3966</td><td><code>@_numberFormats.Rfc3966</code></td></tr>
+            </tbody>
+        </table>
+    }
+</div>
+
+<hr/>
+
+@* --- GetSelectedCountryData --- *@
+<div class="demo-section">
+    <h4>GetSelectedCountryData()</h4>
+    <button class="btn btn-primary btn-sm" @onclick="DoGetCountryData">Get Country Data</button>
+    @if (_countryData is not null)
+    {
+        <table class="table table-sm mt-2">
+            <thead><tr><th>Property</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td>Name</td><td>@_countryData.Name</td></tr>
+                <tr><td>ISO2</td><td><code>@_countryData.Iso2</code></td></tr>
+                <tr><td>Dial Code</td><td>+@_countryData.DialCode</td></tr>
+            </tbody>
+        </table>
+    }
+</div>
+
+<hr/>
+
+@* --- Validation methods --- *@
+<div class="demo-section">
+    <h4>IsValidNumber() / IsValidNumberPrecise() / GetValidationError()</h4>
+    <p class="text-muted">Two levels of validation: length-based and precise.</p>
+    <button class="btn btn-primary btn-sm" @onclick="DoValidate">Validate</button>
+    @if (_validationResult is not null)
+    {
+        <table class="table table-sm mt-2">
+            <thead><tr><th>Check</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>IsValidNumber()</td>
+                    <td><span class="badge @(_validationResult.IsValid ? "bg-success" : "bg-danger")">@_validationResult.IsValid</span></td>
+                </tr>
+                <tr>
+                    <td>IsValidNumberPrecise()</td>
+                    <td><span class="badge @(_validationResult.IsPreciseValid ? "bg-success" : "bg-danger")">@_validationResult.IsPreciseValid</span></td>
+                </tr>
+                <tr><td>GetValidationError()</td><td><code>@_validationResult.Error</code></td></tr>
+            </tbody>
+        </table>
+    }
+</div>
+
+<hr/>
+
+@* --- GetNumberType --- *@
+<div class="demo-section">
+    <h4>GetNumberType()</h4>
+    <p class="text-muted">Detects the type: Mobile, FixedLine, TollFree, etc.</p>
+    <button class="btn btn-primary btn-sm" @onclick="DoGetNumberType">Get Number Type</button>
+    @if (_numberType is not null)
+    {
+        <div class="mt-2"><strong>Type:</strong> <code>@_numberType</code></div>
+    }
+</div>
+
+<hr/>
+
+@* --- GetExtension --- *@
+<div class="demo-section">
+    <h4>GetExtension()</h4>
+    <p class="text-muted">Extracts the extension part of the number (e.g. <code>+1 212 555 1234 ext. 567</code>).</p>
+    <button class="btn btn-primary btn-sm" @onclick="DoGetExtension">Get Extension</button>
+    <div class="mt-2"><strong>Extension:</strong> <code>@(_extension ?? "(none)")</code></div>
+</div>
+
+<hr/>
+
+@* --- SetNumber --- *@
+<div class="demo-section">
+    <h4>SetNumber(number)</h4>
+    <p class="text-muted">Programmatically set the input value. Country auto-detects from the number.</p>
+    <div class="input-group" style="max-width: 400px;">
+        <input type="text" class="form-control" @bind="_setNumberValue" placeholder="+44 7911 123456"/>
+        <button class="btn btn-primary btn-sm" @onclick="DoSetNumber">Set Number</button>
+    </div>
+    <div class="mt-2">
+        <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetNumberPreset("+1 202 555 0143")'>US Example</button>
+        <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetNumberPreset("+44 7911 123456")'>UK Mobile</button>
+        <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetNumberPreset("+81 90 1234 5678")'>Japan Mobile</button>
+        <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetNumberPreset("+49 30 123456")'>Germany Landline</button>
+        <button class="btn btn-outline-secondary btn-sm" @onclick='() => DoSetNumberPreset("+61 412 345 678")'>Australia Mobile</button>
+    </div>
+</div>
+
+<hr/>
+
+@* --- SetCountry --- *@
+<div class="demo-section">
+    <h4>SetCountry(iso2)</h4>
+    <p class="text-muted">Change the selected country. The dial code and placeholder update accordingly.</p>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetCountry("us")'>US</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetCountry("gb")'>UK</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetCountry("de")'>Germany</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetCountry("jp")'>Japan</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetCountry("br")'>Brazil</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetCountry("in")'>India</button>
+    <button class="btn btn-outline-secondary btn-sm" @onclick='() => DoSetCountry("au")'>Australia</button>
+</div>
+
+<hr/>
+
+@* --- SetDisabled --- *@
+<div class="demo-section">
+    <h4>SetDisabled(bool)</h4>
+    <p class="text-muted">Enable or disable both the input and the country selector.</p>
+    <button class="btn @(_isDisabled ? "btn-success" : "btn-warning") btn-sm" @onclick="DoToggleDisabled">
+        @(_isDisabled ? "Enable" : "Disable")
+    </button>
+    <span class="ms-2 text-muted">Currently: @(_isDisabled ? "Disabled" : "Enabled")</span>
+</div>
+
+<hr/>
+
+@* --- SetPlaceholderNumberType --- *@
+<div class="demo-section">
+    <h4>SetPlaceholderNumberType(type)</h4>
+    <p class="text-muted">Dynamically change the placeholder number type.</p>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetPlaceholderType("MOBILE")'>MOBILE</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetPlaceholderType("FIXED_LINE")'>FIXED_LINE</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetPlaceholderType("TOLL_FREE")'>TOLL_FREE</button>
+    <button class="btn btn-outline-secondary btn-sm" @onclick='() => DoSetPlaceholderType("SHARED_COST")'>SHARED_COST</button>
+</div>
+
+@code {
+    EditContext _ctx;
+    IntlTelInput _input;
+    IntlTel _tel;
+
+    // GetNumber results
+    record NumberFormatsResult(string E164, string International, string National, string Rfc3966);
+    NumberFormatsResult _numberFormats;
+
+    // Country data
+    IntlTelCountryData _countryData;
+
+    // Validation
+    record ValidationResult(bool IsValid, bool IsPreciseValid, ValidationError Error);
+    ValidationResult _validationResult;
+
+    // Number type
+    string _numberType;
+
+    // Extension
+    string _extension;
+
+    // SetNumber
+    string _setNumberValue = "+44 7911 123456";
+
+    // Disabled
+    bool _isDisabled;
+
+    protected override void OnInitialized()
+    {
+        _ctx = new EditContext(new object());
+    }
+
+    private async Task DoGetNumber()
+    {
+        if (_input is null) return;
+        _numberFormats = new(
+            await _input.GetNumber(NumberFormat.E164),
+            await _input.GetNumber(NumberFormat.International),
+            await _input.GetNumber(NumberFormat.National),
+            await _input.GetNumber(NumberFormat.Rfc3966)
+        );
+    }
+
+    private async Task DoGetCountryData()
+    {
+        if (_input is null) return;
+        _countryData = await _input.GetSelectedCountryData();
+    }
+
+    private async Task DoValidate()
+    {
+        if (_input is null) return;
+        _validationResult = new(
+            await _input.IsValidNumber(),
+            await _input.IsValidNumberPrecise(),
+            await _input.GetValidationError()
+        );
+    }
+
+    private async Task DoGetNumberType()
+    {
+        if (_input is null) return;
+        var type = await _input.GetNumberType();
+        _numberType = type.ToString();
+    }
+
+    private async Task DoGetExtension()
+    {
+        if (_input is null) return;
+        _extension = await _input.GetExtension();
+    }
+
+    private async Task DoSetNumber()
+    {
+        if (_input is null || string.IsNullOrEmpty(_setNumberValue)) return;
+        await _input.SetNumber(_setNumberValue);
+    }
+
+    private async Task DoSetNumberPreset(string number)
+    {
+        _setNumberValue = number;
+        if (_input is null) return;
+        await _input.SetNumber(number);
+    }
+
+    private async Task DoSetCountry(string iso2)
+    {
+        if (_input is null) return;
+        await _input.SetCountry(iso2);
+    }
+
+    private async Task DoToggleDisabled()
+    {
+        if (_input is null) return;
+        _isDisabled = !_isDisabled;
+        await _input.SetDisabled(_isDisabled);
+    }
+
+    private async Task DoSetPlaceholderType(string type)
+    {
+        if (_input is null) return;
+        await _input.SetPlaceholderNumberType(type);
+    }
+}

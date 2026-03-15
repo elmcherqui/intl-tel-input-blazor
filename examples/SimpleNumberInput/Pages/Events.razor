@@ -1,0 +1,156 @@
+@page "/events"
+@using IntlTelInputBlazor
+
+<h1>Events</h1>
+<p>All event callbacks fired by the component, with a live event log.</p>
+
+<hr/>
+
+<div class="demo-section">
+    <h4>Input with All Events</h4>
+    <EditForm EditContext="_ctx">
+        <IntlTelInput @bind-Value="_tel"
+                      InitialCountry="us"
+                      SeparateDialCode="true"
+                      OnCountryChange="HandleCountryChange"
+                      OnDropdownOpen="HandleDropdownOpen"
+                      OnDropdownClose="HandleDropdownClose"/>
+    </EditForm>
+</div>
+
+<hr/>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Event Log</h4>
+        <p class="text-muted">Interact with the input above to see events fire in real-time.</p>
+        <button class="btn btn-outline-secondary btn-sm mb-2" @onclick="ClearLog">Clear Log</button>
+        <div class="event-log border rounded p-2" style="max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; background: #f8f9fa;">
+            @if (_eventLog.Count == 0)
+            {
+                <div class="text-muted">No events yet. Try opening the dropdown or changing the country.</div>
+            }
+            @foreach (var entry in _eventLog)
+            {
+                <div class="@GetEventClass(entry.Type)">
+                    <span class="text-muted">[@entry.Timestamp.ToString("HH:mm:ss.fff")]</span>
+                    <strong>@entry.Type</strong>
+                    @if (!string.IsNullOrEmpty(entry.Details))
+                    {
+                        <span> &mdash; @entry.Details</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h4>Event Summary</h4>
+        <table class="table table-sm">
+            <thead><tr><th>Event</th><th>Count</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>OnCountryChange</code></td>
+                    <td><span class="badge bg-primary">@_countryChangeCount</span></td>
+                    <td>Fires when the selected country changes</td>
+                </tr>
+                <tr>
+                    <td><code>OnDropdownOpen</code></td>
+                    <td><span class="badge bg-success">@_dropdownOpenCount</span></td>
+                    <td>Fires when the dropdown opens</td>
+                </tr>
+                <tr>
+                    <td><code>OnDropdownClose</code></td>
+                    <td><span class="badge bg-warning text-dark">@_dropdownCloseCount</span></td>
+                    <td>Fires when the dropdown closes</td>
+                </tr>
+            </tbody>
+        </table>
+
+        @if (_lastCountry is not null)
+        {
+            <h5 class="mt-3">Last Selected Country</h5>
+            <table class="table table-sm">
+                <tbody>
+                    <tr><td>Name</td><td>@_lastCountry.Name</td></tr>
+                    <tr><td>ISO2</td><td><code>@_lastCountry.Iso2</code></td></tr>
+                    <tr><td>Dial Code</td><td>+@_lastCountry.DialCode</td></tr>
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<hr/>
+
+<h4>Event Callback Signatures</h4>
+<pre><code>&lt;IntlTelInput
+    OnCountryChange="HandleCountryChange"   @* EventCallback&lt;IntlTelCountryData&gt; *@
+    OnDropdownOpen="HandleDropdownOpen"      @* EventCallback *@
+    OnDropdownClose="HandleDropdownClose" /&gt; @* EventCallback *@
+
+@@code {
+    private void HandleCountryChange(IntlTelCountryData country)
+    {
+        Console.WriteLine($"Country: {country.Name} (+{country.DialCode})");
+    }
+
+    private void HandleDropdownOpen() =&gt; Console.WriteLine("Opened");
+    private void HandleDropdownClose() =&gt; Console.WriteLine("Closed");
+}</code></pre>
+
+@code {
+    EditContext _ctx;
+    IntlTel _tel;
+
+    record EventLogEntry(DateTime Timestamp, string Type, string Details);
+    List<EventLogEntry> _eventLog = new();
+
+    int _countryChangeCount;
+    int _dropdownOpenCount;
+    int _dropdownCloseCount;
+    IntlTelCountryData _lastCountry;
+
+    protected override void OnInitialized()
+    {
+        _ctx = new EditContext(new object());
+    }
+
+    private void HandleCountryChange(IntlTelCountryData country)
+    {
+        _countryChangeCount++;
+        _lastCountry = country;
+        _eventLog.Insert(0, new(DateTime.Now, "CountryChange", $"{country.Name} ({country.Iso2}) +{country.DialCode}"));
+        StateHasChanged();
+    }
+
+    private void HandleDropdownOpen()
+    {
+        _dropdownOpenCount++;
+        _eventLog.Insert(0, new(DateTime.Now, "DropdownOpen", null));
+        StateHasChanged();
+    }
+
+    private void HandleDropdownClose()
+    {
+        _dropdownCloseCount++;
+        _eventLog.Insert(0, new(DateTime.Now, "DropdownClose", null));
+        StateHasChanged();
+    }
+
+    private void ClearLog()
+    {
+        _eventLog.Clear();
+        _countryChangeCount = 0;
+        _dropdownOpenCount = 0;
+        _dropdownCloseCount = 0;
+        _lastCountry = null;
+    }
+
+    private string GetEventClass(string type) => type switch
+    {
+        "CountryChange" => "text-primary",
+        "DropdownOpen" => "text-success",
+        "DropdownClose" => "text-warning",
+        _ => ""
+    };
+}

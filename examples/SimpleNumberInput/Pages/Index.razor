@@ -1,37 +1,96 @@
-﻿@page "/"
-@using SimpleNumberInput.Models
+@page "/"
 @using IntlTelInputBlazor
 
-<h1>Hello, world!</h1>
+<h1>IntlTelInput Blazor - Demo Overview</h1>
+<p>A Blazor wrapper for <strong>intl-tel-input v26.8</strong> providing international telephone input with country flags, validation, and formatting.</p>
 
-<EditForm EditContext="_editContext" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
-    
-    <label>Tel. 1:</label>
-    <IntlTelInput @bind-Value="_model.IntTelNumber"/>
-    
-    <label>Tel. 2:</label>
-    <IntlTelInput @bind-Value="_model.IntTelNumber2"/>
-    <button class="btn-primary">Submit</button>
-</EditForm>
+<hr/>
 
+<h3>Quick Start</h3>
+<p>The simplest usage &mdash; just bind a value:</p>
 
+<div class="demo-section">
+    <EditForm EditContext="_editContext">
+        <label>Phone Number:</label>
+        <IntlTelInput @ref="_basicInput" @bind-Value="_tel" InitialCountry="us"/>
+    </EditForm>
 
-@code
-{
-    NumberModel _model = new NumberModel();
+    <div class="mt-2">
+        <button class="btn btn-sm btn-outline-primary" @onclick="ShowBasicValue">Show Value</button>
+        @if (_tel is not null && !string.IsNullOrEmpty(_basicResult))
+        {
+            <span class="ms-2 text-muted">@_basicResult</span>
+        }
+    </div>
+</div>
+
+<hr/>
+
+<h3>Available Demos</h3>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Configurations</h5>
+                <p class="card-text">Every initialization parameter demonstrated: dropdowns, formatting, strict mode, country filtering, flags, and more.</p>
+                <a href="configurations" class="btn btn-primary btn-sm">View Demo</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Methods API</h5>
+                <p class="card-text">All public methods: GetNumber (all formats), SetCountry, SetNumber, SetDisabled, validation, number type detection.</p>
+                <a href="methods" class="btn btn-primary btn-sm">View Demo</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Events</h5>
+                <p class="card-text">Event callbacks: OnCountryChange, OnDropdownOpen, OnDropdownClose with live event log.</p>
+                <a href="events" class="btn btn-primary btn-sm">View Demo</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Form Validation</h5>
+                <p class="card-text">EditForm integration with DataAnnotationsValidator, custom validation attributes, and multiple inputs.</p>
+                <a href="validation" class="btn btn-primary btn-sm">View Demo</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Advanced</h5>
+                <p class="card-text">GeoIP auto-detection, i18n/localization, country name locale, restricted countries, phonewords, and extensions.</p>
+                <a href="advanced" class="btn btn-primary btn-sm">View Demo</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    IntlTel _tel;
+    IntlTelInput _basicInput;
     EditContext _editContext;
+    string _basicResult;
 
     protected override void OnInitialized()
     {
-        _editContext = new EditContext(_model);
+        _editContext = new EditContext(new object());
     }
 
-    private void OnValidSubmit()
+    private async Task ShowBasicValue()
     {
-        var tel1 = _model.IntTelNumber.Number;
-        var tel2 = _model.IntTelNumber2.Number;
-        Console.WriteLine($"Number 1: {tel1}; Number 2: {tel2}");
+        if (_basicInput is null) return;
+        var e164 = await _basicInput.GetNumber(NumberFormat.E164);
+        var isValid = await _basicInput.IsValidNumber();
+        _basicResult = $"Number: {e164} | Valid: {isValid}";
     }
 }

@@ -1,0 +1,267 @@
+@page "/advanced"
+@using IntlTelInputBlazor
+
+<h1>Advanced Features</h1>
+<p>GeoIP auto-detection, i18n, localization, phonewords, extensions, and more.</p>
+
+<hr/>
+
+@* --- 1. GeoIP Auto-Detection --- *@
+<div class="demo-section">
+    <h4>GeoIP Country Auto-Detection</h4>
+    <p class="text-muted">
+        Automatically detects the user's country via IP geolocation.
+        Uses <code>UseGeoIpLookup</code> and <code>GeoIpLookupUrl</code> parameters.
+    </p>
+    <code>UseGeoIpLookup="true" GeoIpLookupUrl="https://ipapi.co/json"</code>
+    <div class="mt-2">
+        <EditForm EditContext="_ctx">
+            <IntlTelInput @ref="_geoInput"
+                          @bind-Value="_geoTel"
+                          UseGeoIpLookup="true"
+                          GeoIpLookupUrl="https://ipapi.co/json"
+                          SeparateDialCode="true"/>
+        </EditForm>
+        <button class="btn btn-sm btn-outline-primary mt-1" @onclick="ShowGeoCountry">Show Detected Country</button>
+        @if (!string.IsNullOrEmpty(_geoResult))
+        {
+            <div class="mt-1 text-muted">@_geoResult</div>
+        }
+    </div>
+</div>
+
+<hr/>
+
+@* --- 2. Country Name Locale --- *@
+<div class="demo-section">
+    <h4>Country Name Locale</h4>
+    <p class="text-muted">Country names in the dropdown are displayed in the specified locale using the browser's <code>Intl.DisplayNames</code> API.</p>
+    <div class="row">
+        <div class="col-md-4">
+            <label>English (default)</label>
+            <code class="d-block mb-1">CountryNameLocale="en"</code>
+            <EditForm EditContext="_ctx">
+                <IntlTelInput @bind-Value="_localeTel1"
+                              InitialCountry="de"
+                              CountryNameLocale="en"/>
+            </EditForm>
+        </div>
+        <div class="col-md-4">
+            <label>German</label>
+            <code class="d-block mb-1">CountryNameLocale="de"</code>
+            <EditForm EditContext="_ctx">
+                <IntlTelInput @bind-Value="_localeTel2"
+                              InitialCountry="de"
+                              CountryNameLocale="de"/>
+            </EditForm>
+        </div>
+        <div class="col-md-4">
+            <label>Japanese</label>
+            <code class="d-block mb-1">CountryNameLocale="ja"</code>
+            <EditForm EditContext="_ctx">
+                <IntlTelInput @bind-Value="_localeTel3"
+                              InitialCountry="de"
+                              CountryNameLocale="ja"/>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<hr/>
+
+@* --- 3. i18n (Internationalization) --- *@
+<div class="demo-section">
+    <h4>i18n (Custom Text)</h4>
+    <p class="text-muted">Override the search placeholder and other UI text via the <code>I18n</code> dictionary.</p>
+    <code>I18n with searchPlaceholder = "Rechercher un pays..."</code>
+    <div class="mt-2">
+        <EditForm EditContext="_ctx">
+            <IntlTelInput @bind-Value="_i18nTel"
+                          InitialCountry="fr"
+                          CountryNameLocale="fr"
+                          I18n='new Dictionary<string, string> { ["searchPlaceholder"] = "Rechercher un pays...", ["zeroSearchResults"] = "Aucun pays trouv\u00e9" }'/>
+        </EditForm>
+    </div>
+</div>
+
+<hr/>
+
+@* --- 4. Allow Number Extensions --- *@
+<div class="demo-section">
+    <h4>Number Extensions</h4>
+    <p class="text-muted">
+        Allows numbers with extensions (e.g. <code>+1 212 555 1234 ext 567</code>).
+        Try entering a number with "ext" or "x" followed by digits.
+    </p>
+    <code>AllowNumberExtensions="true"</code>
+    <div class="mt-2">
+        <EditForm EditContext="_ctx">
+            <IntlTelInput @ref="_extInput"
+                          @bind-Value="_extTel"
+                          InitialCountry="us"
+                          AllowNumberExtensions="true"/>
+        </EditForm>
+        <button class="btn btn-sm btn-outline-primary mt-1" @onclick="ShowExtension">Get Extension</button>
+        <button class="btn btn-sm btn-outline-secondary mt-1" @onclick='() => SetExtPreset("+1 212 555 1234 ext 567")'>Load Example</button>
+        @if (!string.IsNullOrEmpty(_extResult))
+        {
+            <div class="mt-1 text-muted">@_extResult</div>
+        }
+    </div>
+</div>
+
+<hr/>
+
+@* --- 5. Allow Phonewords --- *@
+<div class="demo-section">
+    <h4>Phonewords</h4>
+    <p class="text-muted">
+        Allows alphanumeric "phonewords" like <code>+1 800 FLOWERS</code> as valid numbers.
+    </p>
+    <code>AllowPhonewords="true"</code>
+    <div class="mt-2">
+        <EditForm EditContext="_ctx">
+            <IntlTelInput @ref="_phonewordInput"
+                          @bind-Value="_phonewordTel"
+                          InitialCountry="us"
+                          AllowPhonewords="true"/>
+        </EditForm>
+        <button class="btn btn-sm btn-outline-primary mt-1" @onclick="ValidatePhoneword">Validate</button>
+        <button class="btn btn-sm btn-outline-secondary mt-1" @onclick='() => SetPhonewordPreset("+1 800 FLOWERS")'>Load Example</button>
+        @if (!string.IsNullOrEmpty(_phonewordResult))
+        {
+            <div class="mt-1 text-muted">@_phonewordResult</div>
+        }
+    </div>
+</div>
+
+<hr/>
+
+@* --- 6. Dropdown Always Open --- *@
+<div class="demo-section">
+    <h4>Dropdown Always Open</h4>
+    <p class="text-muted">Keeps the country dropdown permanently visible (useful for inline country pickers).</p>
+    <code>DropdownAlwaysOpen="true" FixDropdownWidth="false"</code>
+    <div class="mt-2" style="min-height: 300px;">
+        <EditForm EditContext="_ctx">
+            <IntlTelInput @bind-Value="_alwaysOpenTel"
+                          InitialCountry="us"
+                          DropdownAlwaysOpen="true"
+                          FixDropdownWidth="false"
+                          OnlyCountries='new[] {"us", "gb", "ca", "au", "de", "fr", "jp", "br", "in", "mx"}'/>
+        </EditForm>
+    </div>
+</div>
+
+<hr/>
+
+@* --- 7. Fullscreen Popup --- *@
+<div class="demo-section">
+    <h4>Fullscreen Popup</h4>
+    <p class="text-muted">Forces fullscreen popup mode for the country selector (designed for mobile).</p>
+    <code>UseFullscreenPopup="true"</code>
+    <div class="mt-2">
+        <EditForm EditContext="_ctx">
+            <IntlTelInput @bind-Value="_fullscreenTel"
+                          InitialCountry="us"
+                          UseFullscreenPopup="true"/>
+        </EditForm>
+    </div>
+</div>
+
+<hr/>
+
+@* --- 8. Combined: Restricted + Styled --- *@
+<div class="demo-section">
+    <h4>Combined: EU Countries + Separate Dial Code + German Locale + No Flags</h4>
+    <p class="text-muted">A highly customized configuration combining multiple features.</p>
+    <div class="mt-2">
+        <EditForm EditContext="_ctx">
+            <IntlTelInput @bind-Value="_comboTel"
+                          InitialCountry="de"
+                          OnlyCountries='new[] {"de", "fr", "it", "es", "nl", "be", "at", "pt", "ie", "fi", "se", "dk", "pl", "cz", "gr", "hu", "ro", "bg", "hr", "sk", "si", "lt", "lv", "ee", "mt", "cy", "lu"}'
+                          SeparateDialCode="true"
+                          CountryNameLocale="de"
+                          ShowFlags="false"
+                          StrictMode="true"
+                          CountrySearch="true"
+                          FormatAsYouType="true"
+                          AutoPlaceholder="aggressive"
+                          ContainerClass="eu-phone-input"/>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    EditContext _ctx;
+
+    // GeoIP
+    IntlTelInput _geoInput;
+    IntlTel _geoTel;
+    string _geoResult;
+
+    // Locale
+    IntlTel _localeTel1, _localeTel2, _localeTel3;
+
+    // i18n
+    IntlTel _i18nTel;
+
+    // Extensions
+    IntlTelInput _extInput;
+    IntlTel _extTel;
+    string _extResult;
+
+    // Phonewords
+    IntlTelInput _phonewordInput;
+    IntlTel _phonewordTel;
+    string _phonewordResult;
+
+    // Always open
+    IntlTel _alwaysOpenTel;
+
+    // Fullscreen
+    IntlTel _fullscreenTel;
+
+    // Combo
+    IntlTel _comboTel;
+
+    protected override void OnInitialized()
+    {
+        _ctx = new EditContext(new object());
+    }
+
+    private async Task ShowGeoCountry()
+    {
+        if (_geoInput is null) return;
+        var data = await _geoInput.GetSelectedCountryData();
+        _geoResult = data is not null ? $"Detected: {data.Name} ({data.Iso2}) +{data.DialCode}" : "No country detected";
+    }
+
+    private async Task ShowExtension()
+    {
+        if (_extInput is null) return;
+        var ext = await _extInput.GetExtension();
+        var valid = await _extInput.IsValidNumber();
+        _extResult = $"Extension: \"{ext}\" | Valid: {valid}";
+    }
+
+    private async Task SetExtPreset(string number)
+    {
+        if (_extInput is null) return;
+        await _extInput.SetNumber(number);
+    }
+
+    private async Task ValidatePhoneword()
+    {
+        if (_phonewordInput is null) return;
+        var valid = await _phonewordInput.IsValidNumber();
+        var number = await _phonewordInput.GetNumber(NumberFormat.E164);
+        _phonewordResult = $"Valid: {valid} | E164: {number}";
+    }
+
+    private async Task SetPhonewordPreset(string number)
+    {
+        if (_phonewordInput is null) return;
+        await _phonewordInput.SetNumber(number);
+    }
+}

@@ -1,0 +1,204 @@
+@page "/validation"
+@using SimpleNumberInput.Models
+@using IntlTelInputBlazor
+@using IntlTelInputBlazor.Validation
+
+<h1>Form Validation</h1>
+<p>Integration with Blazor's <code>EditForm</code>, <code>DataAnnotationsValidator</code>, and the <code>[IntlTelephone]</code> validation attribute.</p>
+
+<hr/>
+
+@* --- 1. Basic Form Validation --- *@
+<div class="demo-section">
+    <h4>Basic Validation (Required + Valid Number)</h4>
+    <p class="text-muted">Both fields use <code>[IntlTelephone]</code> to enforce valid phone numbers.</p>
+
+    <EditForm EditContext="_basicCtx" OnValidSubmit="OnBasicSubmit">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="mb-3">
+            <label class="form-label">Primary Phone (required):</label>
+            <IntlTelInput @bind-Value="_basicModel.IntTelNumber"
+                          InitialCountry="us"
+                          StrictMode="true"/>
+            <ValidationMessage For="() => _basicModel.IntTelNumber"/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Secondary Phone (required):</label>
+            <IntlTelInput @bind-Value="_basicModel.IntTelNumber2"
+                          InitialCountry="gb"
+                          SeparateDialCode="true"/>
+            <ValidationMessage For="() => _basicModel.IntTelNumber2"/>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(_basicResult))
+    {
+        <div class="alert alert-success mt-2">@_basicResult</div>
+    }
+</div>
+
+<hr/>
+
+@* --- 2. Contact Form --- *@
+<div class="demo-section">
+    <h4>Contact Form Example</h4>
+    <p class="text-muted">A realistic form combining phone input with other fields.</p>
+
+    <EditForm EditContext="_contactCtx" OnValidSubmit="OnContactSubmit">
+        <DataAnnotationsValidator/>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">First Name:</label>
+                <input class="form-control" @bind="_contactModel.FirstName"/>
+                <ValidationMessage For="() => _contactModel.FirstName"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Last Name:</label>
+                <input class="form-control" @bind="_contactModel.LastName"/>
+                <ValidationMessage For="() => _contactModel.LastName"/>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email:</label>
+            <input class="form-control" type="email" @bind="_contactModel.Email"/>
+            <ValidationMessage For="() => _contactModel.Email"/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Phone Number:</label>
+            <IntlTelInput @bind-Value="_contactModel.Phone"
+                          InitialCountry="us"
+                          SeparateDialCode="true"
+                          StrictMode="true"
+                          CountryOrder='new[] {"us", "gb", "ca", "au"}'/>
+            <ValidationMessage For="() => _contactModel.Phone"/>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Save Contact</button>
+        <ValidationSummary/>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(_contactResult))
+    {
+        <div class="alert alert-success mt-2">@_contactResult</div>
+    }
+</div>
+
+<hr/>
+
+@* --- 3. Validation Error Codes --- *@
+<div class="demo-section">
+    <h4>Validation Error Codes Reference</h4>
+    <p class="text-muted">Enter a number and see the detailed validation result.</p>
+
+    <EditForm EditContext="_errorCtx">
+        <IntlTelInput @ref="_errorInput"
+                      @bind-Value="_errorTel"
+                      InitialCountry="us"
+                      StrictMode="true"/>
+    </EditForm>
+
+    <button class="btn btn-primary btn-sm mt-2" @onclick="DoDetailedValidation">Run Detailed Validation</button>
+
+    @if (_detailedValidation is not null)
+    {
+        <table class="table table-sm mt-2">
+            <tbody>
+                <tr>
+                    <td>IsValidNumber()</td>
+                    <td><span class="badge @(_detailedValidation.Valid ? "bg-success" : "bg-danger")">@_detailedValidation.Valid</span></td>
+                </tr>
+                <tr>
+                    <td>IsValidNumberPrecise()</td>
+                    <td><span class="badge @(_detailedValidation.PreciseValid ? "bg-success" : "bg-danger")">@_detailedValidation.PreciseValid</span></td>
+                </tr>
+                <tr>
+                    <td>ValidationError Code</td>
+                    <td><code>@_detailedValidation.Error</code></td>
+                </tr>
+                <tr>
+                    <td>Error Meaning</td>
+                    <td>@GetErrorMeaning(_detailedValidation.Error)</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+
+    <h5 class="mt-3">Error Code Reference</h5>
+    <table class="table table-sm">
+        <thead><tr><th>Enum Value</th><th>Code</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td><code>IsPossible</code></td><td>0</td><td>Number is valid (no error)</td></tr>
+            <tr><td><code>InvalidCountryCode</code></td><td>1</td><td>Invalid country calling code</td></tr>
+            <tr><td><code>TooShort</code></td><td>2</td><td>Number is too short</td></tr>
+            <tr><td><code>TooLong</code></td><td>3</td><td>Number is too long</td></tr>
+            <tr><td><code>IsPossibleLocalOnly</code></td><td>4</td><td>Valid for local calls only</td></tr>
+            <tr><td><code>InvalidLength</code></td><td>5</td><td>Invalid number length</td></tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    // Basic form
+    NumberModel _basicModel = new();
+    EditContext _basicCtx;
+    string _basicResult;
+
+    // Contact form
+    ContactModel _contactModel = new();
+    EditContext _contactCtx;
+    string _contactResult;
+
+    // Error codes
+    EditContext _errorCtx;
+    IntlTelInput _errorInput;
+    IntlTel _errorTel;
+
+    record DetailedValidation(bool Valid, bool PreciseValid, ValidationError Error);
+    DetailedValidation _detailedValidation;
+
+    protected override void OnInitialized()
+    {
+        _basicCtx = new EditContext(_basicModel);
+        _contactCtx = new EditContext(_contactModel);
+        _errorCtx = new EditContext(new object());
+    }
+
+    private void OnBasicSubmit()
+    {
+        _basicResult = $"Valid! Phone 1: {_basicModel.IntTelNumber?.Number} | Phone 2: {_basicModel.IntTelNumber2?.Number}";
+    }
+
+    private void OnContactSubmit()
+    {
+        _contactResult = $"Contact saved: {_contactModel.FirstName} {_contactModel.LastName}, {_contactModel.Email}, {_contactModel.Phone?.Number}";
+    }
+
+    private async Task DoDetailedValidation()
+    {
+        if (_errorInput is null) return;
+        _detailedValidation = new(
+            await _errorInput.IsValidNumber(),
+            await _errorInput.IsValidNumberPrecise(),
+            await _errorInput.GetValidationError()
+        );
+    }
+
+    private string GetErrorMeaning(ValidationError error) => error switch
+    {
+        ValidationError.IsPossible => "Number is valid (no error)",
+        ValidationError.InvalidCountryCode => "Invalid country calling code",
+        ValidationError.TooShort => "Number is too short",
+        ValidationError.TooLong => "Number is too long",
+        ValidationError.IsPossibleLocalOnly => "Valid for local calls only",
+        ValidationError.InvalidLength => "Invalid number length",
+        _ => "Unknown error"
+    };
+}
