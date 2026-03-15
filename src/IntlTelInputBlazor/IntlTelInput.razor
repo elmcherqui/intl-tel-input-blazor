@@ -6,45 +6,52 @@
 @code {
 
     [Parameter]
-    public bool AllowDropDown { get; set; } = true;
-    
-    [Parameter]
-    public bool AutoHideDialCode { get; set; } = true;
+    public bool AllowDropdown { get; set; } = true;
 
     [Parameter]
     public string AutoPlaceholder { get; set; } = "polite";
-    
+
     [Parameter]
-    public string CustomContainer { get; set; }
-    
+    public string ContainerClass { get; set; }
+
+    [Parameter]
+    public bool CountrySearch { get; set; } = true;
+
+    [Parameter]
+    public IEnumerable<string> CountryOrder { get; set; } = new[] {"us", "gb"};
+
     [Parameter]
     public IEnumerable<string> ExcludeCountries { get; set; } = Enumerable.Empty<string>();
+
     [Parameter]
     public bool FormatOnDisplay { get; set; } = true;
-    
+
+    [Parameter]
+    public bool FormatAsYouType { get; set; } = true;
+
     [Parameter]
     public string InitialCountry { get; set; }
 
     [Parameter]
     public Dictionary<string, string> LocalizedCountries { get; set; }
-    
+
     [Parameter]
     public bool NationalMode { get; set; } = true;
-    
+
     [Parameter]
     public IEnumerable<string> OnlyCountries { get; set; } = Enumerable.Empty<string>();
-    
+
     [Parameter]
     public string PlaceholderNumberType { get; set; } = "MOBILE";
-    
-    [Parameter]
-    public IEnumerable<string> PreferredCountries { get; set; } = new[] {"us", "gb"};
-    
+
     [Parameter]
     public bool SeparateDialCode { get; set; }
-    
+
     [Parameter]
-    public string UtilsScript { get; set; } = "./_content/IntlTelInputBlazor/js/utils.js";
+    public bool ShowFlags { get; set; } = true;
+
+    [Parameter]
+    public bool StrictMode { get; set; } = false;
 
     ElementReference _telInput;
 
@@ -56,20 +63,22 @@
         {
             _inputIndex = await _intlTelInputJsInterop.Init(_telInput, new
             {
-                AllowDropDown,
-                AutoHideDialCode,
+                AllowDropdown,
                 AutoPlaceholder,
-                CustomContainer,
+                ContainerClass,
+                CountrySearch,
+                CountryOrder,
                 ExcludeCountries,
                 FormatOnDisplay,
+                FormatAsYouType,
                 InitialCountry,
                 LocalizedCountries,
                 NationalMode,
                 OnlyCountries,
                 PlaceholderNumberType,
-                PreferredCountries,
                 SeparateDialCode,
-                UtilsScript
+                ShowFlags,
+                StrictMode
             });
 
             if (CurrentValue is not null)
@@ -78,7 +87,7 @@
             }
         }
     }
-    
+
     protected override bool TryParseValueFromString(string value, out IntlTel result, out string validationErrorMessage)
     {
         throw new NotImplementedException();

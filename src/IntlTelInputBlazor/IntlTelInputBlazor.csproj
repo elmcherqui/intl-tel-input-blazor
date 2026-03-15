@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <AssemblyVersion>1.0.2</AssemblyVersion>
-        <FileVersion>1.0.2</FileVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <AssemblyVersion>2.0.0</AssemblyVersion>
+        <FileVersion>2.0.0</FileVersion>
         <Authors>Rolandas</Authors>
         <PackageTags>Blazor;intl-tel-input;</PackageTags>
         <Description>
             International Telephone Input js library wrapper for Blazor serverside and clientside!
         </Description>
-        <Version>1.0.2</Version>
+        <Version>2.0.0</Version>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/R0landas/intl-tel-input-blazor</RepositoryUrl>
     </PropertyGroup>
@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
     </ItemGroup>
 
     <ItemGroup>
