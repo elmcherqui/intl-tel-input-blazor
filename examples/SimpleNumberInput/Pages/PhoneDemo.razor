@@ -17,9 +17,11 @@
                       InitialCountry="ca"
                       CountryOrder="@_countryOrder"
                       SeparateDialCode="@true"
+                      OnlyCountries="@_countryOrder",
                       StrictMode="@true"
                       FormatAsYouType="@true"
                       FormatOnDisplay="@true"
+                      
                       OnCountryChange="OnCountryChanged"/>
         <ValidationMessage For="() => _model.PhoneNumber"/>
     </div>
@@ -70,7 +72,7 @@
     PhoneModel _model = new();
     IntlTelInput _input;
 
-    string[] _countryOrder = { "ca", "us", "gb", "de", "fr", "it", "es", "nl", "be", "at", "pt", "ie", "fi", "se", "dk", "pl", "cz", "gr", "hu", "ro", "bg", "hr", "sk", "si", "lt", "lv", "ee" };
+    string[] _countryOrder = { "ca", "us", "gb", "de" };
 
     record PhoneValidationResult(bool IsValid, bool IsPreciseValid, string E164, NumberType NumberType, ValidationError Error, IntlTelCountryData Country);
     PhoneValidationResult _phoneValidationResult;

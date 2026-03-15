@@ -15,10 +15,10 @@
     public bool AllowDropdown { get; set; } = true;
 
     /// <summary>
-    /// The number types to enforce during validation (e.g. "MOBILE", "FIXED_LINE").
+    /// The number types to enforce during validation.
     /// </summary>
     [Parameter]
-    public IEnumerable<string> AllowedNumberTypes { get; set; } = new[] { "MOBILE", "FIXED_LINE" };
+    public IEnumerable<NumberType> AllowedNumberTypes { get; set; } = new[] { NumberType.Mobile, NumberType.FixedLine };
 
     /// <summary>
     /// Whether or not to allow extensions after the main number.
@@ -37,7 +37,7 @@
     /// Values: "polite" (default), "aggressive", "off"
     /// </summary>
     [Parameter]
-    public string AutoPlaceholder { get; set; } = "polite";
+    public PlaceholderMode AutoPlaceholder { get; set; } = PlaceholderMode.Polite;
 
     /// <summary>
     /// Additional CSS class to add to the injected container element.
@@ -118,10 +118,10 @@
     public IEnumerable<string> OnlyCountries { get; set; }
 
     /// <summary>
-    /// The number type to use for the placeholder (e.g. "MOBILE", "FIXED_LINE").
+    /// The number type to use for the placeholder.
     /// </summary>
     [Parameter]
-    public string PlaceholderNumberType { get; set; } = "MOBILE";
+    public NumberType PlaceholderNumberType { get; set; } = NumberType.Mobile;
 
     /// <summary>
     /// Additional CSS class for the search input element in the dropdown.
@@ -194,6 +194,9 @@
     private DotNetObjectReference<IntlTelInput> _dotNetRef;
     private bool _disposed;
 
+    private static string ToJsNumberType(NumberType type) =>
+        System.Text.RegularExpressions.Regex.Replace(type.ToString(), "(?<!^)([A-Z])", "_$1").ToUpperInvariant();
+
     // ===== Lifecycle =====
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -205,10 +208,10 @@
             _inputIndex = await _intlTelInputJsInterop.Init(_telInput, new
             {
                 AllowDropdown,
-                AllowedNumberTypes,
+                AllowedNumberTypes = AllowedNumberTypes?.Select(ToJsNumberType),
                 AllowNumberExtensions,
                 AllowPhonewords,
-                AutoPlaceholder,
+                AutoPlaceholder = AutoPlaceholder.ToString().ToLowerInvariant(),
                 ContainerClass,
                 CountryNameLocale,
                 CountrySearch,
@@ -222,7 +225,7 @@
                 InitialCountry,
                 NationalMode,
                 OnlyCountries,
-                PlaceholderNumberType,
+                PlaceholderNumberType = ToJsNumberType(PlaceholderNumberType),
                 SearchInputClass,
                 SeparateDialCode,
                 ShowFlags,
@@ -378,12 +381,12 @@
     }
 
     /// <summary>
-    /// Change the placeholder number type (e.g. "MOBILE", "FIXED_LINE").
+    /// Change the placeholder number type.
     /// </summary>
-    public async ValueTask SetPlaceholderNumberType(string type)
+    public async ValueTask SetPlaceholderNumberType(NumberType type)
     {
         if (_inputIndex < 0) return;
-        await _intlTelInputJsInterop.SetPlaceholderNumberType(_inputIndex, type);
+        await _intlTelInputJsInterop.SetPlaceholderNumberType(_inputIndex, ToJsNumberType(type));
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ namespace SimpleNumberInput.Models
         [IntlTelephone(ErrorMessage = "Please enter a valid phone number")]
         public IntlTel PhoneNumber { get; set; } = new IntlTel
         {
-            Number = "+12025551234",
+            Number = "",
             IsValid = true
         };
     }

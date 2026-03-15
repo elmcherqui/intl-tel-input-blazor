@@ -159,10 +159,10 @@
 <div class="demo-section">
     <h4>SetPlaceholderNumberType(type)</h4>
     <p class="text-muted">Dynamically change the placeholder number type.</p>
-    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetPlaceholderType("MOBILE")'>MOBILE</button>
-    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetPlaceholderType("FIXED_LINE")'>FIXED_LINE</button>
-    <button class="btn btn-outline-secondary btn-sm me-1" @onclick='() => DoSetPlaceholderType("TOLL_FREE")'>TOLL_FREE</button>
-    <button class="btn btn-outline-secondary btn-sm" @onclick='() => DoSetPlaceholderType("SHARED_COST")'>SHARED_COST</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick="() => DoSetPlaceholderType(NumberType.Mobile)">MOBILE</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick="() => DoSetPlaceholderType(NumberType.FixedLine)">FIXED_LINE</button>
+    <button class="btn btn-outline-secondary btn-sm me-1" @onclick="() => DoSetPlaceholderType(NumberType.TollFree)">TOLL_FREE</button>
+    <button class="btn btn-outline-secondary btn-sm" @onclick="() => DoSetPlaceholderType(NumberType.SharedCost)">SHARED_COST</button>
 </div>
 
 @code {
@@ -258,7 +258,7 @@
         await _input.SetDisabled(_isDisabled);
     }
 
-    private async Task DoSetPlaceholderType(string type)
+    private async Task DoSetPlaceholderType(NumberType type)
     {
         if (_input is null) return;
         await _input.SetPlaceholderNumberType(type);

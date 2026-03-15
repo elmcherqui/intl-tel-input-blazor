@@ -141,12 +141,12 @@
 <div class="demo-section">
     <h4>Fixed-Line Placeholder</h4>
     <p class="text-muted">Placeholder shows a fixed-line number example instead of mobile.</p>
-    <code>PlaceholderNumberType="FIXED_LINE" AutoPlaceholder="aggressive"</code>
+    <code>PlaceholderNumberType="NumberType.FixedLine" AutoPlaceholder="PlaceholderMode.Aggressive"</code>
     <div class="mt-2">
         <IntlTelInput @bind-Value="_model.FixedLinePlaceholder"
                       InitialCountry="gb"
-                      PlaceholderNumberType="FIXED_LINE"
-                      AutoPlaceholder="aggressive"/>
+                      PlaceholderNumberType="NumberType.FixedLine"
+                      AutoPlaceholder="PlaceholderMode.Aggressive"/>
     </div>
 </div>
 
@@ -160,7 +160,7 @@
     <div class="mt-2">
         <IntlTelInput @bind-Value="_model.PlaceholderOff"
                       InitialCountry="us"
-                      AutoPlaceholder="off"
+                      AutoPlaceholder="PlaceholderMode.Off"
                       placeholder="Enter your number"/>
     </div>
 </div>
@@ -229,12 +229,12 @@
 <div class="demo-section">
     <h4>Mobile-Only Validation</h4>
     <p class="text-muted">Only mobile numbers are considered valid.</p>
-    <code>AllowedNumberTypes='new[] {"MOBILE"}'</code>
+    <code>AllowedNumberTypes="new[] { NumberType.Mobile }"</code>
     <div class="mt-2">
         <IntlTelInput @ref="_mobileOnly"
                       @bind-Value="_model.MobileOnly"
                       InitialCountry="us"
-                      AllowedNumberTypes="@(new[] {"MOBILE"})"/>
+                      AllowedNumberTypes="@(new[] { NumberType.Mobile })"/>
         <button class="btn btn-sm btn-outline-primary mt-1" type="button" @onclick="CheckMobileOnly">Check Validity</button>
         @if (!string.IsNullOrEmpty(_mobileOnlyResult))
         {
